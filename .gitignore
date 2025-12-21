@@ -6,7 +6,7 @@ venv/
 instance/
 
 # Environment
-.env
+
 
 # IDE
 .vscode/
