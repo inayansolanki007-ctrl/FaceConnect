@@ -13,7 +13,7 @@ def create_post():
     current_user_id = get_jwt_identity()
     data = request.get_json()
     
-    content = sanitize_content(data['content'])
+    content = data['content']
     
     new_post = Post(
         content=content,

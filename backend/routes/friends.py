@@ -41,12 +41,15 @@ def send_friend_request():
 @friends_bp.route('/friends/accept/<int:friendship_id>', methods=['PUT'])
 @jwt_required()
 def accept_friend_request(friendship_id):
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     friendship = Friendship.query.get_or_404(friendship_id)
     
     if friendship.friend_id != current_user_id:
         return jsonify({'message': 'You can only accept friend requests sent to you'}), 403
     
+    if friendship.status != 'pending':
+        return jsonify({'message':'Friend request is not pending'}),400
+     
     friendship.status = 'accepted'
     
     current_user = User.query.get(current_user_id)
