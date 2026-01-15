@@ -10,7 +10,7 @@ posts_bp = Blueprint('posts', __name__)
 @posts_bp.route('/posts', methods=['POST'])
 @jwt_required()
 def create_post():
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     data = request.get_json()
     
     content = data['content']

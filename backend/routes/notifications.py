@@ -9,8 +9,11 @@ notifications_bp = Blueprint('notifications', __name__)
 @jwt_required()
 def get_notifications():
     current_user_id = get_jwt_identity()
+
+    page = int(request.args.get('page', 1))
+    limit = int(request.args.get('limit', 20))
     
-    notifications = Notification.query.filter_by(user_id=current_user_id).order_by(Notification.created_at.desc()).limit(50).all()
+    notifications = Notification.query.filter_by(user_id=current_user_id).order_by(Notification.created_at.desc()).offset((page - 1) * limit).limit(limit).all()
     
     notif_data = [{
         'id': n.id,
@@ -32,7 +35,7 @@ def get_notifications():
 @notifications_bp.route('/notifications/<int:notif_id>/read', methods=['PUT'])
 @jwt_required()
 def mark_notification_read(notif_id):
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     notification = Notification.query.get_or_404(notif_id)
     
     if notification.user_id != current_user_id:
@@ -42,3 +45,11 @@ def mark_notification_read(notif_id):
     db.session.commit()
     
     return jsonify({'message': 'Notification marked as read'}), 200
+
+@notifications_bp.route('/notifications/read-all', methods=['PUT'])
+@jwt_required()
+def read_all():
+    current_user_id = int(get_jwt_identity())
+    Notification.query.filter_by(user_id=current_user_id, is_read=False).update({'is_read': True})
+    db.session.commit()
+    return jsonify({'message': 'All notifications marked as read'})

@@ -9,7 +9,7 @@ stories_bp = Blueprint('stories', __name__)
 @stories_bp.route('/stories', methods=['POST'])
 @jwt_required()
 def create_story():
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     data = request.get_json()
     
     new_story = Story(
@@ -29,7 +29,7 @@ def create_story():
 @stories_bp.route('/stories', methods=['GET'])
 @jwt_required()
 def get_stories():
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
     
     friends = [f.id for f in user.following.all()]
@@ -70,16 +70,15 @@ def get_stories():
 @stories_bp.route('/stories/<int:story_id>/view', methods=['POST'])
 @jwt_required()
 def view_story(story_id):
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     story = Story.query.get_or_404(story_id)
     
-    # Handle if story.views is None (though default is [])
+    
     if story.views is None:
         story.views = []
 
     if current_user_id not in story.views:
-        # This is tricky because JSON lists aren't mutable in-place like this.
-        # A more robust way:
+        
         current_views = list(story.views)
         current_views.append(current_user_id)
         story.views = current_views

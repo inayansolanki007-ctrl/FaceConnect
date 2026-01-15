@@ -9,7 +9,7 @@ messaging_bp = Blueprint('messaging', __name__)
 @messaging_bp.route('/messages', methods=['POST'])
 @jwt_required()
 def send_message():
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     data = request.get_json()
     
     content = sanitize_content(data['content'])
@@ -51,7 +51,7 @@ def send_message():
 @messaging_bp.route('/messages/<int:user_id>', methods=['GET'])
 @jwt_required()
 def get_messages(user_id):
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     
     messages = Message.query.filter(
         ((Message.sender_id == current_user_id) & (Message.receiver_id == user_id)) |
